@@ -2,6 +2,7 @@ import unittest
 import tweepy
 import requests
 import json
+import twitter_info
 
 ## SI 206 - HW
 ## COMMENT WITH:
@@ -46,10 +47,10 @@ import json
 ## Get your secret values to authenticate to Twitter. You may replace each of these 
 ## with variables rather than filling in the empty strings if you choose to do the secure way 
 ## for EC points
-consumer_key = "" 
-consumer_secret = ""
-access_token = ""
-access_token_secret = ""
+consumer_key = twitter_info.consumer_key
+consumer_secret = twitter_info.consumer_secret
+access_token = twitter_info.access_token
+access_token_secret = twitter_info.access_token_secret
 ## Set up your authentication to Twitter
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
@@ -57,14 +58,20 @@ auth.set_access_token(access_token, access_token_secret)
 # return it in a JSON-formatted way
 
 api = tweepy.API(auth, parser=tweepy.parsers.JSONParser()) 
+print (api.statuses.public_timeline())
 
 ## Write the rest of your code here!
 
 #### Recommended order of tasks: ####
 ## 1. Set up the caching pattern start -- the dictionary and the try/except 
 ## 		statement shown in class.
-
-
+# cache_fname = 'cached_results.txt'
+# try:
+# 	fobj = open(cache_fname, 'r')
+# 	saved_cache = pickle.load(fobj)
+# 	fobj.close()
+# except:
+# 	saved_cache = {}
 
 ## 2. Write a function to get twitter data that works with the caching pattern, 
 ## 		so it either gets new data or caches data, depending upon what the input 
@@ -74,7 +81,6 @@ api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
 
 ## 3. Using a loop, invoke your function, save the return value in a variable, and explore the 
 ##		data you got back!
-
 
 ## 4. With what you learn from the data -- e.g. how exactly to find the 
 ##		text of each tweet in the big nested structure -- write code to print out 
