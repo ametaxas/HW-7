@@ -74,45 +74,38 @@ except:
 ## 2. Write a function to get twitter data that works with the caching pattern, 
 ## 		so it either gets new data or caches data, depending upon what the input 
 ##		to search for is. 
-def get_tweetswords(key_word, file_name = cache_fname, cache_diction = cache_diction):
-	count = 5
-	id_num = 0
-	start = 0
-	good_tweets = {}
-	bad_tweets = {}
-	# while count != 0:
-	# 	for item in cache_diction:
-	# 		if item not in good_tweets and item not in bad_tweets:
-	# 			if key_word in item['text']:
-	# 				good_tweets[item] = item['created_at']
-	# 				count -= 1
-	# 			else:
-	# 				bad_tweets[item] = item['created_at']
-	next_20_tweets = api.user_timeline()
-	print(type(cache_diction))
-	# for item in sorted(next_20_tweets, key = lambda x : x['id']):
-		# x = item['text']
-		# print (type(x))
-		# y = item['created_at']
-		# print (type(y))
-	dumped_json_cache = json.dumps(next_20_tweets)
+def add_a_tweet(max_id):
+	next_tweet = (api.user_timeline(max_id = max_id, count = 1))[0]
+	cache_diction[next_tweet['id']] = next_tweet
+	dumped_json_cache = json.dumps(cache_diction)
 	fw = open(cache_fname,"w")
 	fw.write(dumped_json_cache)
 	fw.close()
-	id_num = next_20_tweets[-1]['id']
+	return (next_tweet['id'], next_tweet['text'], next_tweet['created_at'])
 
-
+def get_tweetswords(key_word, file_name = cache_fname, cache_diction = cache_diction):
+	tweets_left = 5
+	good_tweets = {}
+	max_id = None
+	while tweets_left != 0:
+		x = add_a_tweet(max_id)
+		if key_word in x[1]:
+			good_tweets[x[1]] = x[2]
+			tweets_left -= 1
+		max_id = x[0] - 1
+	return (good_tweets)
 # ## 3. Using a loop, invoke your function, save the return value in a variable, and explore the 
 # ##		data you got back!
-for item in range(2):
-	key_word = input('search tweets! enter a key word below!')
-	get_tweetswords(key_word)
+for item in range(3):
+	key_word = input('Enter Tweet term: ')
+	print ('fetching')
+	top_5_tweets = get_tweetswords(key_word)
+	for tweet in top_5_tweets:
+		print ('TEXT: ' + tweet)
+		print ('CREATED AT: ' + top_5_tweets[tweet] + '\n\n') 
 ## 4. With what you learn from the data -- e.g. how exactly to find the 
 ##		text of each tweet in the big nested structure -- write code to print out 
 ## 		content from 5 tweets, as shown in the linked example.
-
-
-
 
 
 
