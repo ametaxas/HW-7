@@ -3,7 +3,6 @@ import tweepy
 import requests
 import json
 import twitter_info
-
 ## SI 206 - HW
 ## COMMENT WITH:
 ## Your section day/time:
@@ -58,30 +57,56 @@ auth.set_access_token(access_token, access_token_secret)
 # return it in a JSON-formatted way
 
 api = tweepy.API(auth, parser=tweepy.parsers.JSONParser()) 
-print (api.statuses.public_timeline())
 
 ## Write the rest of your code here!
 
 #### Recommended order of tasks: ####
 ## 1. Set up the caching pattern start -- the dictionary and the try/except 
 ## 		statement shown in class.
-# cache_fname = 'cached_results.txt'
-# try:
-# 	fobj = open(cache_fname, 'r')
-# 	saved_cache = pickle.load(fobj)
-# 	fobj.close()
-# except:
-# 	saved_cache = {}
-
+cache_fname = 'twitter_results.txt'
+try:
+    cache_file = open(cache_fname, 'r') # Try to read the data from the file
+    cache_contents = cache_file.read()  # If it's there, get it into a string
+    cache_diction = json.loads(cache_contents) # And then load it into a dictionary
+    cache_file.close() # Close the file, we're good, we got the data in a dictionary.
+except:
+    cache_diction = {}
 ## 2. Write a function to get twitter data that works with the caching pattern, 
 ## 		so it either gets new data or caches data, depending upon what the input 
 ##		to search for is. 
+def get_tweetswords(key_word, file_name = cache_fname, cache_diction = cache_diction):
+	count = 5
+	id_num = 0
+	start = 0
+	good_tweets = {}
+	bad_tweets = {}
+	# while count != 0:
+	# 	for item in cache_diction:
+	# 		if item not in good_tweets and item not in bad_tweets:
+	# 			if key_word in item['text']:
+	# 				good_tweets[item] = item['created_at']
+	# 				count -= 1
+	# 			else:
+	# 				bad_tweets[item] = item['created_at']
+	next_20_tweets = api.user_timeline()
+	print(type(cache_diction))
+	# for item in sorted(next_20_tweets, key = lambda x : x['id']):
+		# x = item['text']
+		# print (type(x))
+		# y = item['created_at']
+		# print (type(y))
+	dumped_json_cache = json.dumps(next_20_tweets)
+	fw = open(cache_fname,"w")
+	fw.write(dumped_json_cache)
+	fw.close()
+	id_num = next_20_tweets[-1]['id']
 
 
-
-## 3. Using a loop, invoke your function, save the return value in a variable, and explore the 
-##		data you got back!
-
+# ## 3. Using a loop, invoke your function, save the return value in a variable, and explore the 
+# ##		data you got back!
+for item in range(2):
+	key_word = input('search tweets! enter a key word below!')
+	get_tweetswords(key_word)
 ## 4. With what you learn from the data -- e.g. how exactly to find the 
 ##		text of each tweet in the big nested structure -- write code to print out 
 ## 		content from 5 tweets, as shown in the linked example.
