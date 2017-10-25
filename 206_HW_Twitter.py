@@ -74,35 +74,53 @@ except:
 ## 2. Write a function to get twitter data that works with the caching pattern, 
 ## 		so it either gets new data or caches data, depending upon what the input 
 ##		to search for is. 
-def add_a_tweet(max_id):
-	next_tweet = (api.user_timeline(max_id = max_id, count = 1))[0]
-	cache_diction[next_tweet['id']] = next_tweet
+def add_to_cache(max_id, cache_diction = cache_diction, cache_fname = cache_fname):
+	tweets = api.home_timeline(max_id = max_id, count = 20, )
+	for item in tweets:
+		cache_diction[item['id']] = (item['text'], item['created_at'])
+	print (cache_diction)
 	dumped_json_cache = json.dumps(cache_diction)
 	fw = open(cache_fname,"w")
 	fw.write(dumped_json_cache)
 	fw.close()
-	return (next_tweet['id'], next_tweet['text'], next_tweet['created_at'])
-
-def get_tweetswords(key_word, file_name = cache_fname, cache_diction = cache_diction):
-	tweets_left = 5
-	good_tweets = {}
-	max_id = None
-	while tweets_left != 0:
-		x = add_a_tweet(max_id)
-		if key_word in x[1]:
-			good_tweets[x[1]] = x[2]
-			tweets_left -= 1
-		max_id = x[0] - 1
-	return (good_tweets)
+	return tweets[-1]['id']
+# def get_tweetswords(file_name = cache_fname, cache_diction = cache_diction):
+# 	key_word = input('Enter Tweet term: ')
+# 	if key_word not in cache_diction: #when keyword isnt in cache
+# 		print ('fetching')
+# 		max_id = None 
+# 		cache_diction[key_word] = [] #cache dictionary will contain a list of tuples 
+# 		while True: #while loop to accumulate 5 tweets with the matching keyword into the dictionary value
+# 			tweets = (api.home_timeline(max_id = max_id)) #most recent 20 tweets on timeline
+# 			for item in tweets: #for every tweet dictionary in the returned list
+# 				if key_word in item['text']: #if the key word is in the tweet's text
+# 					cache_diction[key_word].append((item['text'], item['created_at'])) #add a tuple including the text and date to the key word's list
+# 					if len(cache_diction[key_word]) == 5: #when 5 tweets are in the list
+# 						break #quit the loop
+# 			max_id = tweets[-1]['id'] - 1 #next loop will start with the next most recent tweets
+# 		dumped_json_cache = json.dumps(cache_diction)
+# 		fw = open(cache_fname,"w")
+# 		fw.write(dumped_json_cache)
+# 		fw.close()
+# 	else:
+# 		print ('using cache')
+# 	return (cache_diction[key_word])
 # ## 3. Using a loop, invoke your function, save the return value in a variable, and explore the 
 # ##		data you got back!
-for item in range(3):
-	key_word = input('Enter Tweet term: ')
-	print ('fetching')
-	top_5_tweets = get_tweetswords(key_word)
-	for tweet in top_5_tweets:
-		print ('TEXT: ' + tweet)
-		print ('CREATED AT: ' + top_5_tweets[tweet] + '\n\n') 
+def get_tweets(key_word):
+	return [cache_diction[item] for item in sorted(cache_diction) if key_word in cache_diction[item][0]]
+
+for item in range(2):
+	max_id = None
+	key_word = input('search tweets: ')
+	while True:
+		if (len(get_tweets(key_word))) >= 5:
+			break
+		else:
+			max_id = add_to_cache(max_id)
+	for item in get_tweets(key_word)[:6]:
+		print ('TEXT: ' + item[0])
+		print ('CREATED AT: ' + item[1] + '\n\n') 
 ## 4. With what you learn from the data -- e.g. how exactly to find the 
 ##		text of each tweet in the big nested structure -- write code to print out 
 ## 		content from 5 tweets, as shown in the linked example.
